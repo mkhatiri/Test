@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
@@ -23,7 +22,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	ts, err := template.ParseFiles(files...)
 
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -31,12 +30,12 @@ func home(w http.ResponseWriter, r *http.Request) {
 	err = ts.Execute(w, nil)
 
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
 
-func showPatient(w http.ResponseWriter, r *http.Request) {
+func (app *application) showPatient(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
@@ -49,7 +48,7 @@ func showPatient(w http.ResponseWriter, r *http.Request) {
 		ts, err := template.ParseFiles(files...)
 
 		if err != nil {
-			log.Println(err.Error())
+			app.errorLog.Println(err.Error())
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
@@ -57,16 +56,16 @@ func showPatient(w http.ResponseWriter, r *http.Request) {
 		err = ts.Execute(w, nil)
 
 		if err != nil {
-			log.Println(err.Error())
+			app.errorLog.Println(err.Error())
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 	}
 
 	i, err := fmt.Fprintf(w, "Show patient number %d", id)
-	log.Println(i, err)
+	app.infoLog.Println(i, err)
 }
 
-func createPatient(w http.ResponseWriter, r *http.Request) {
+func (app *application) createPatient(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != "POST" {
 		w.Header().Set("Allow", "POST")
@@ -80,4 +79,9 @@ func createPatient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte("createPatient"))
+}
+
+func (app *application) downloadHandler(w http.ResponseWriter, r *http.Request) {
+
+	http.ServeFile(w, r, "./ui/static/files/go.pdf")
 }
