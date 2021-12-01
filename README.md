@@ -16,3 +16,4 @@ like validation helpers and the SQL database models for the project.
   Specifically, the ui/html directory will contain HTML templates, and the ui/static directory 
   will contain static files (like CSS and images).
 
+Chapter 3.4.
